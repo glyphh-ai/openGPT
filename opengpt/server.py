@@ -94,7 +94,12 @@ class Handler(BaseHTTPRequestHandler):
 def serve(host="127.0.0.1", port=8642):
     httpd = ThreadingHTTPServer((host, port), Handler)
     httpd.daemon_threads = True
-    print(f"openGPT is running at http://{host}:{port}  (Ctrl-C to stop)")
+    if host == "0.0.0.0":
+        import socket
+        name = socket.gethostname().split(".")[0]
+        print(f"openGPT is running for your network at http://{name}.local:{port}  (Ctrl-C to stop)")
+    else:
+        print(f"openGPT is running at http://{host}:{port}  (Ctrl-C to stop)")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:

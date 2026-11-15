@@ -1,4 +1,5 @@
 """python -m opengpt            start the app
+python -m opengpt --lan      start it for every device on your network
 python -m opengpt fetch      download TinyStories into data/
 python -m opengpt train k=v  train in the terminal, e.g. steps=2000 n_layer=2
 python -m opengpt check      re-check the gradients of model.py
@@ -15,7 +16,9 @@ def main(argv=None):
     if cmd == "serve":
         from . import server
         port = int(args[args.index("--port") + 1]) if "--port" in args else 8642
-        server.serve(port=port)
+        # --lan lets other devices on your network open the app; it has no password
+        host = args[args.index("--host") + 1] if "--host" in args else "0.0.0.0" if "--lan" in args else "127.0.0.1"
+        server.serve(host=host, port=port)
     elif cmd == "fetch":
         from . import data
         print("downloading TinyStories (about 19 MB) ...")
