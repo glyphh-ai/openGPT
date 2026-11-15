@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>openGPT</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand"><b>openGPT</b><span>a GPT from scratch: learn it, change it, watch it train</span></div>
+  <nav id="tabs">
+    <a href="#learn" data-tab="learn">Learn</a>
+    <a href="#data" data-tab="data">Data</a>
+    <a href="#train" data-tab="train">Train</a>
+    <a href="#generate" data-tab="generate">Generate</a>
+    <a href="#runs" data-tab="runs">Runs</a>
+    <a href="#code" data-tab="code">Code</a>
+  </nav>
+  <div id="pill" class="pill idle">no run</div>
+</header>
+
+<main>
+<!-- LEARN -->
+<section id="learn" class="tab">
+  <div class="intro">
+    <h1>How a GPT works, in 34 steps</h1>
+    <p>Each step shows the math, the Python function that does it, and one tiny sentence pushed through that exact
+      function. Nothing is written down in advance: the code is read from <code>model.py</code> as it stands and the
+      numbers come from running it, so this lesson follows every change you make.</p>
+    <div class="toggles" id="cols">
+      <label><input type="checkbox" data-col="math" checked> Math</label>
+      <label><input type="checkbox" data-col="code" checked> Python</label>
+      <label><input type="checkbox" data-col="ex" checked> Example</label>
+      <button id="reloadLesson" class="ghost">Rebuild from the code</button>
+    </div>
+  </div>
+  <div id="glossary"></div>
+  <nav id="stageNav" class="stagenav"></nav>
+  <div id="lesson"><p class="muted">Running the example…</p></div>
+</section>
+
+<!-- DATA -->
+<section id="data" class="tab">
+  <div class="intro"><h1>Data: what the model reads</h1>
+    <p>Text is cut into words, rare words are swapped for <code>&lt;unk&gt;</code>, every word becomes a number, and
+      the last 10% is held out so the model can be tested on text it has never seen.</p></div>
+  <div class="row">
+    <label>Corpus <select id="dCorpus"></select></label>
+    <label>min_freq <input id="dMinFreq" type="number" min="1" value="1"></label>
+    <button id="dLoad">Load</button>
+    <button id="dFetch" class="ghost">Download TinyStories (19 MB)</button>
+    <span id="dMsg" class="muted"></span>
+  </div>
+  <div id="dStats" class="cards"></div>
+  <div class="two">
+    <div class="box"><h3>Most common words</h3><div id="dTop"></div></div>
+    <div class="box"><h3>Start of the text</h3><pre id="dSample" class="wrap"></pre></div>
+  </div>
+  <div class="box">
+    <h3>Try the tokenizer</h3>
+    <div class="row"><textarea id="tokText" rows="2">Once upon a time there was a brave little zebra named Tom.</textarea></div>
+    <div class="row"><label>context length T <input id="tokT" type="number" min="1" value="8"></label>
+      <button id="tokGo">Tokenize</button></div>
+    <div id="tokOut"></div>
+  </div>
+</section>
+
+<!-- TRAIN -->
+<section id="train" class="tab">
+  <div class="trainwrap">
+    <aside class="settings">
+      <h2>Settings</h2>
+      <form id="cfgForm"></form>
+      <div id="weightsEst" class="muted"></div>
+      <div class="row buttons">
+        <button id="btnStart" class="primary">Start run</button>
+        <button id="btnPause" disabled>Pause</button>
+        <button id="btnStop" class="danger" disabled>Stop</button>
+      </div>
+      <p id="trainMsg" class="err"></p>
+    </aside>
+    <div class="dash">
+      <div id="status" class="cards"></div>
+      <div class="progress"><div id="bar"></div></div>
+      <div class="charts">
+        <div class="box"><h3>Loss <span class="muted">lower is better; the dashed line is blind guessing</span></h3>
+          <div class="chart"><canvas id="lossChart"></canvas></div></div>
+        <div class="box"><h3>Accuracy on the next word <span class="muted">dashed: always guessing the most common word</span></h3>
+          <div class="chart"><canvas id="accChart"></canvas></div></div>
+        <div class="box"><h3>Gradient norm</h3><div class="chart small"><canvas id="gradChart"></canvas></div></div>
+        <div class="box"><h3>Learning rate</h3><div class="chart small"><canvas id="lrChart"></canvas></div></div>
+      </div>
+      <div class="two">
+        <div class="box"><h3>How we know it works</h3><div id="checks" class="muted">Start a run.</div></div>
+        <div class="box"><h3>What it writes as it learns</h3><div id="samples" class="muted">Samples appear at every check.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GENERATE -->
+<section id="generate" class="tab">
+  <div class="intro"><h1>Generate: ask the model for the next words</h1>
+    <p>Pick a run, give it a start, and see what it writes, how sure it was of every word, and which earlier words
+      each attention head looked at.</p></div>
+  <div class="row">
+    <label>Run <select id="gRun"></select></label>
+    <label>Words <input id="gN" type="number" min="0" max="400" value="30"></label>
+    <label>Temperature <input id="gTemp" type="number" min="0.05" step="0.05" value="0.8"></label>
+    <label>Seed <input id="gSeed" type="number" value="0"></label>
+  </div>
+  <div class="row"><textarea id="gPrompt" rows="2">once upon a time there was a</textarea></div>
+  <div class="row"><button id="gGo" class="primary">Generate</button><span id="gMsg" class="err"></span></div>
+  <div class="box"><h3>Text</h3><div id="gText" class="gentext muted">Nothing yet.</div></div>
+  <div class="two">
+    <div class="box"><h3>The very next word: top 10</h3><div id="gNext"></div></div>
+    <div class="box"><h3>Attention <span class="muted">row = the word looking, column = the word looked at</span></h3>
+      <div id="gAtt"></div></div>
+  </div>
+</section>
+
+<!-- RUNS -->
+<section id="runs" class="tab">
+  <div class="intro"><h1>Runs: compare your experiments</h1>
+    <p>Every run is saved in <code>runs/</code>. Tick runs to lay their held-out loss on one chart.</p></div>
+  <div class="box"><div class="chart"><canvas id="cmpChart"></canvas></div></div>
+  <div class="box scroll"><table id="runsTable" class="grid"></table></div>
+</section>
+
+<!-- CODE -->
+<section id="code" class="tab">
+  <div class="intro"><h1>Code: the whole model is yours to change</h1>
+    <p>Edit these files in your editor. The next run and the Learn tab use the code as it is on disk; there is nothing
+      to restart. After touching the maths, check the gradients.</p></div>
+  <div class="row">
+    <label>Blocks <input id="gcL" type="number" min="1" max="4" value="2"></label>
+    <label>Heads <input id="gcH" type="number" min="1" max="8" value="2"></label>
+    <button id="gcGo">Check gradients</button><span id="gcMsg"></span>
+  </div>
+  <div class="codewrap">
+    <nav id="fileList" class="files"></nav>
+    <pre id="fileView" class="source"></pre>
+  </div>
+</section>
+</main>
+
+<script src="vendor/chart.umd.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

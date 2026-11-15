@@ -1,0 +1,22 @@
+[project]
+name = "opengpt"
+version = "0.1.0"
+description = "A GPT built from scratch in numpy, with an app to learn it, change it and watch it train"
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.26"]
+
+[project.scripts]
+opengpt = "opengpt.__main__:main"
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["opengpt"]
