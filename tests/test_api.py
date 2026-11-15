@@ -106,6 +106,8 @@ def test_lesson_source_and_gradcheck():
     assert [st["n"] for st in les["steps"]] == list(range(1, 35))
     assert 'class="fn">tokenize<' in les["steps"][0]["code"] and les["steps"][31]["curve"][-1] < 0.05
     assert "result: the cat sat down" in les["steps"][33]["example"]
+    words = " ".join(w for w, _ in les["terms"])
+    assert all(t in words for t in ("Head", "MLP", "Stream", "Gradient", "Loss", "Token"))
     s, src = call("GET", "/api/source")
     assert any(f["path"] == "opengpt/model.py" and "attention_bwd" in f["html"] for f in src["files"])
     s, gc = call("POST", "/api/gradcheck", body={"n_layer": 2, "n_head": 2})

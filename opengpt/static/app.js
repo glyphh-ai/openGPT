@@ -210,7 +210,9 @@ async function loadLesson() {
   const exVal = { B: ex.B, T: ex.T, C: ex.C, V: ex.V, H: ex.H, N: ex.B * ex.T };
   $('#glossary').innerHTML = '<div class="box"><h3>The six letters used in every shape</h3><table class="grid"><tr><th>Letter</th><th>Name</th><th>What it means</th><th>In the example</th></tr>' +
     L.glossary.map(([s, n, d]) => `<tr><td class="sym">${s}</td><td><b>${esc(n)}</b></td><td>${esc(d)}</td><td class="sym">${exVal[s]}</td></tr>`).join('') +
-    '</table><p class="muted">A shape such as (B,T,C) reads: B windows, each with T positions, each position holding C numbers.</p></div>';
+    '</table><p class="muted">A shape such as (B,T,C) reads: B windows, each with T positions, each position holding C numbers. Every other word used here is explained just below.</p></div>' +
+    '<div class="box"><h3>Every word this lesson uses</h3><table class="grid"><tr><th>Word</th><th>What it means</th></tr>' +
+    L.terms.map(([w, d]) => `<tr><td style="white-space:nowrap"><b>${esc(w)}</b></td><td>${esc(d)}</td></tr>`).join('') + '</table></div>';
   const counts = {};
   L.steps.forEach(s => { (counts[s.stage] = counts[s.stage] || []).push(s.n); });
   const range = a => (a.length === 1 ? `step ${a[0]}` : `steps ${a[0]} to ${a[a.length - 1]}`);

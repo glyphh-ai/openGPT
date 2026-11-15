@@ -38,6 +38,44 @@ GLOSSARY = [
 ]
 
 
+# Every word the lesson leans on, in an order where each one only uses the ones above it.
+TERMS = [
+    ("Token", "One piece of text the model works with. Here a token is a whole word or a punctuation mark."),
+    ("Vocabulary", "The list of every token the model knows. A token's place in that list is its id."),
+    ("<unk>", "The stand-in token for any word that is not in the vocabulary."),
+    ("Window", "A run of T tokens in a row, cut from the text. The model reads one window at a time."),
+    ("Position", "A slot in the window: the first token, the second token, and so on."),
+    ("Vector", "A list of numbers. The model stands for each token by a vector of C numbers."),
+    ("Weight", "One number the model can change while it learns. Everything the model knows is in its weights. Also called a parameter."),
+    ("Matrix", "A grid of weights. Multiplying a vector by a matrix turns it into a new vector."),
+    ("Embedding", "The vector a token starts with. It is looked up in a table (tok_emb) that has one row per token in the vocabulary. A second table (pos_emb) has one row per position."),
+    ("Stream", "The vector kept for each position as it travels up through the model (h0, then h1, then h2). Each part of the model reads the stream and adds its result back to it."),
+    ("Attention", "The part where each position looks back at the earlier positions and pulls information in from them. It is the only place where tokens exchange information."),
+    ("Head (attention head)", "One independent copy of attention. A model with 4 heads runs attention 4 times side by side, each on its own slice of the vector, so each head can follow a different kind of link between words."),
+    ("Query, key, value", "The three vectors attention makes for every position. The query says what this position is looking for, the key says what it offers, and the value is what it hands over when another position picks it."),
+    ("Causal mask", "The rule that a position may look only at itself and at earlier positions, never ahead. Without it the model could simply read the answer."),
+    ("ReLU", "A rule that turns every negative number into 0 and leaves the rest alone. It is what lets the model compute more than plain weighted sums."),
+    ("MLP", "Multi-layer perceptron, also called the feed-forward layer: two matrices with a ReLU between them. It works on each position alone, after attention, to process what attention gathered."),
+    ("LayerNorm", "A rescale of one vector so that its numbers have mean 0 and spread 1. It keeps the numbers in a steady range."),
+    ("Residual (skip) connection", "Adding a part's result to the stream instead of replacing the stream with it."),
+    ("Block", "One round of LayerNorm, attention, LayerNorm and MLP, with both results added to the stream. A GPT stacks several blocks."),
+    ("Output head", "The last matrix (Wh). It turns the stream at each position into one score per token in the vocabulary. Not the same thing as an attention head."),
+    ("Logit", "One of those raw scores: higher means the model finds that token more likely to come next."),
+    ("Softmax", "Turns a row of scores into probabilities: all positive, adding up to 1."),
+    ("Loss", "One number for how wrong the model was: minus the log of the probability it gave the right next token, averaged over all positions. 0 is perfect. Its full name is cross-entropy."),
+    ("Forward pass", "Running a window through the model, from tokens to loss."),
+    ("Gradient", "For one weight, how fast the loss changes when that weight is nudged up. It says which way to move the weight."),
+    ("Backward pass", "Working out the gradient of every weight, starting at the loss and walking back to the embeddings. Also called backpropagation."),
+    ("Cache", "The in-between values the forward pass keeps because the backward pass needs them."),
+    ("Adam", "The rule that moves each weight a little against its gradient."),
+    ("Learning rate (lr)", "How far a weight moves in one step."),
+    ("Training step", "One batch through the forward pass, the backward pass and Adam."),
+    ("Hold-out (validation, val)", "Text kept away from training and used only to test the model."),
+    ("Accuracy", "The share of positions where the token the model scored highest is the right next token."),
+    ("Temperature", "A number the scores are divided by before softmax when generating. Below 1 the model plays safe; above 1 it varies more."),
+]
+
+
 def readable_params(m, rng, V, T, C, H):
     """Same shapes as init_params, but wide values rounded to one decimal."""
     p = m.init_params(rng, V, T, C, H)
@@ -548,5 +586,5 @@ def build():
          f"\n\nresult: {' '.join(words[j] for j in gen)}",
          "It reproduces its one training sentence, which is all it has ever seen.")
 
-    return dict(text=TEXT, stages=STAGES, glossary=GLOSSARY, steps=S,
+    return dict(text=TEXT, stages=STAGES, glossary=GLOSSARY, terms=TERMS, steps=S,
                 example=dict(V=V, T=T, C=C, H=H, B=B, lr=LR, steps=STEPS, weights=int(npar)))
