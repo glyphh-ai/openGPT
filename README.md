@@ -66,3 +66,8 @@ The original single-block, single-head model on TinyStories
 (`corpus=tinystories min_freq=10 T=32 C=128 n_layer=1 n_head=1 steps=700`) reaches
 a held-out loss of 3.89 and 26.5% next-word accuracy in about 35 seconds on a
 laptop CPU, the same as `thinktank/version_0_base` records.
+
+
+## License
+
+Apache-2.0. See LICENSE and NOTICE. Copyright 2026 Chris Timmerman / Glyphh AI LLC. More about it: https://glyphh.ai/projects/opengpt
